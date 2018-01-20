@@ -102,7 +102,7 @@ private:
 
   // Variables
   Ticker *pTimer = new Ticker(Wrapper_To_Call_relayOff, 200, 1, MILLIS);
-  Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateStatus, 3000 , 0, MILLIS);
+  Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateStatus, 60000 , 0, MILLIS);
   Ultrasonic *pSonic = new Ultrasonic(ULTRATRIG, ULTRAECHO);
   DHT *pDht = new DHT(DHTPIN, DHTTYPE);
   event_t lastEvent = INIT;

@@ -10,7 +10,7 @@ extern "C" {
 
 }
 
-#define CODE_VERSION "V1.0.1"
+#define CODE_VERSION "V1.0.2"
 // FORWARD DECLARATIONS
 
 bool setup_wifi();
@@ -145,7 +145,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   } else   if(strcmp(t, "/home/garage/status") == 0){
     mqttClient.publish("/home/garage/temp",  garage->getTemp(buffer), true);
     mqttClient.publish("/home/garage/humid", garage->getHumid(buffer), true);
-    mqttClient.publish("/home/garage/door/status", garage->getEvent(buffer), true);
+    mqttClient.publish("/home/garage/door/state", garage->getEvent(buffer), true);
 
   } else if (strcmp(t, "/home/garage/ECU/reboot") == 0) {
     ESP.reset();
@@ -156,7 +156,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void eventListener(){
   // Something wonderful has happened
   char eventStr[50];
-  mqttClient.publish("/home/garage/event", garage->getEvent(eventStr), true);
+  mqttClient.publish("/home/garage/door/state", garage->getEvent(eventStr), true);
 }
 
 void tack() {

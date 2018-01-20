@@ -10,7 +10,7 @@ extern "C" {
 
 }
 
-#define CODE_VERSION "V1.0.2"
+#define CODE_VERSION "V1.0.3"
 // FORWARD DECLARATIONS
 
 bool setup_wifi();

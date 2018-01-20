@@ -13,6 +13,7 @@ Garage* Garage::getInstance() {
     instance = new Garage();
     instance->pDht->begin();
     instance->pTimer2->start();
+    instance->pTimer3->start();
     instance->call = NULL;
 
     pinMode(MOTOR, OUTPUT);
@@ -21,7 +22,8 @@ Garage* Garage::getInstance() {
     digitalWrite(MOTOR, LOW);
 
     // First inital read
-    instance->updateStatus();
+    instance->updateSensors();
+    instance->updateState();
 
   }
   return instance;
@@ -35,28 +37,7 @@ void Garage::close() {
   garageCntrl(false);
 }
 
-void Garage::detect(){
 
-  uint32_t distance = pSonic->distanceRead();
-  event_t event;
-
-  // Sense checking
-  if(distance < 0 || distance > 300) {
-    event = INIT;
-  }
-  else if(distance < 40){
-    event =  DOOR_OPEN;
-  } else if(distance < 180){
-    event = DOOR_CLOSED_CAR_IN;
-  } else {
-    event = DOOR_CLOSED_CAR_OUT;
-  }
-
-  if(lastEvent != event){
-    lastEvent = event;
-    if(call != NULL) call();
-  }
-}
 
 void Garage::setCallback(fptr callback){
   call = callback;
@@ -68,14 +49,20 @@ void Garage::Wrapper_To_Call_relayOff() {
   instance->relayOff();
 }
 
-void Garage::Wrapper_To_Call_updateStatus() {
+void Garage::Wrapper_To_Call_updateSensors() {
   // call member
-  instance->updateStatus();
+  instance->updateSensors();
+}
+
+void Garage::Wrapper_To_Call_updateState() {
+  // call member
+  instance->updateState();
 }
 
 void Garage::update() {
   pTimer->update();
   pTimer2->update();
+  pTimer3->update();
 }
 
 char* Garage::getTemp(char* t) {
@@ -122,12 +109,34 @@ void Garage::garageCntrl(bool up) {
   pTimer->start();
 }
 
-void Garage::updateStatus() {
-  detect();
+void Garage::updateSensors() {
   // Check temp and humidity
   temp = avg(rgTemp, pDht->readTemperature(), rgIndex);
   humid = avg(rgHumid, pDht->readHumidity(), rgIndex);
   rgIndex = ++rgIndex%SMAX;
+}
+
+void Garage::updateState(){
+
+  uint32_t distance = pSonic->distanceRead();
+  event_t event;
+
+  // Sense checking
+  if(distance < 0 || distance > 300) {
+    event = INIT;
+  }
+  else if(distance < 40){
+    event =  DOOR_OPEN;
+  } else if(distance < 180){
+    event = DOOR_CLOSED_CAR_IN;
+  } else {
+    event = DOOR_CLOSED_CAR_OUT;
+  }
+
+  if(lastEvent != event){
+    lastEvent = event;
+    if(call != NULL) call();
+  }
 }
 
 float Garage::avg(float *rgFloat, float newVal, uint8 index) {

@@ -47,12 +47,14 @@ public:
    * Static wrapper function used in Ticker callback
    * http://www.newty.de/fpt/callback.html#static
    */
-  static void Wrapper_To_Call_updateStatus();
+  static void Wrapper_To_Call_updateSensors();
 
   /**
-   * Detects door status (open/close) and updates lastEvent
+   * Static wrapper function used in Ticker callback
+   * http://www.newty.de/fpt/callback.html#static
    */
-  void detect();
+  static void Wrapper_To_Call_updateState();
+
 
   /**
    * Called periodically to update the timers
@@ -96,13 +98,15 @@ private:
   void garageCntrl(bool up);
   void relayOn();
   void relayOff();
-  void updateStatus();
+  void updateSensors();
+  void updateState();
   float avg(float *rgFloat, float newVal, uint8 index);
 
 
   // Variables
   Ticker *pTimer = new Ticker(Wrapper_To_Call_relayOff, 200, 1, MILLIS);
-  Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateStatus, 60000 , 0, MILLIS);
+  Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateSensors, 60000 , 0, MILLIS);
+  Ticker *pTimer3 = new Ticker(Wrapper_To_Call_updateState, 1000 , 0, MILLIS);
   Ultrasonic *pSonic = new Ultrasonic(ULTRATRIG, ULTRAECHO);
   DHT *pDht = new DHT(DHTPIN, DHTTYPE);
   event_t lastEvent = INIT;

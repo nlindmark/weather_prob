@@ -20,17 +20,71 @@ class Garage
 {
 
 public:
-  /* Static access method. */
+  /**
+   * Get the Garage instance
+   * @return Pointer to Garage instance
+   */
   static Garage* getInstance();
+
+
+  /**
+   * Opens the Garage
+   */
   void open();
+
+  /**
+   * Closes the Garage
+   */
   void close();
-  static void Wrapper_To_Call_relayOff(); //http://www.newty.de/fpt/callback.html#static
+
+  /**
+   * Static wrapper function used in Ticker callback
+   * http://www.newty.de/fpt/callback.html#static
+   */
+  static void Wrapper_To_Call_relayOff();
+
+  /**
+   * Static wrapper function used in Ticker callback
+   * http://www.newty.de/fpt/callback.html#static
+   */
   static void Wrapper_To_Call_updateStatus();
+
+  /**
+   * Detects door status (open/close) and updates lastEvent
+   */
   void detect();
+
+  /**
+   * Called periodically to update the timers
+   */
   void update();
+
+  /**
+   * Get current temperatur
+   * @param  t Char array where temperature is stored
+   * @return Pointer to temperture array
+   */
   char* getTemp(char*);
+
+  /**
+  * Get current hunidity
+  * @param  h CHar array where humitidy is stored
+  * @return Pointer to humidity array
+   */
   char* getHumid(char*);
+
+  /**
+   * Get last door event
+   * @param  e Char array where event is stored
+   * @return Pointer to event array
+   */
   char* getEvent(char*);
+
+  /**
+   * Set a callback function.
+   * The callback will be called when a new door event is detected
+   * @param callback [description]
+   */
   void setCallback(fptr callback);
 
 

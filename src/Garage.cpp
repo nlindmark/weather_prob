@@ -20,6 +20,9 @@ Garage* Garage::getInstance() {
     pinMode(ULTRAECHO, INPUT);
     digitalWrite(MOTOR, LOW);
 
+    // First inital read
+    instance->updateStatus();
+
   }
   return instance;
 }

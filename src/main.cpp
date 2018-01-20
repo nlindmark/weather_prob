@@ -9,6 +9,8 @@ extern "C" {
   #include "user_interface.h"
 
 }
+
+#define CODE_VERSION "V1.0.1"
 // FORWARD DECLARATIONS
 
 bool setup_wifi();
@@ -104,10 +106,10 @@ boolean mqttReconnect(){
 
     snprintf (clientName, 50, "%ld", system_get_chip_id());
     if (mqttClient.connect(clientName, MQTTUSER, MQTTPASSWORD)) {
-      mqttClient.publish("/home/garage/hello","The Garage says Hello");
-      mqttClient.publish("/home/garage/temp",  "0", true);  // Retained
-      mqttClient.publish("/home/garage/humid", "0", true);  // Retained
-      mqttClient.publish("/home/garage/event", "0", true);  // Retained
+      char str[30];
+      strcpy(str, "The Garage is (re)connected ");
+      strcat(str, CODE_VERSION);
+      mqttClient.publish("/home/garage/hello", str);
       mqttClient.subscribe("/home/garage/door/control");
       mqttClient.subscribe("/home/garage/status");
       mqttClient.subscribe("/home/garage/ECU/reboot");

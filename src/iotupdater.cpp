@@ -34,7 +34,7 @@ void iotUpdater(bool debug) {
 
     case HTTP_UPDATE_OK:
       if (debug) Serial.println("HTTP_UPDATE_OK");
-      break; 
+      break;
   }
 }
 

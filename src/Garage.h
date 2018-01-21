@@ -6,7 +6,8 @@
 #include <DHT.h>
 
 #define DHTTYPE           DHT22     // DHT 22 (AM2302)
-#define SMAX              1
+#define TEMPELEMENTS              1
+#define SONICELEMENTS             5
 #define ULTRAECHO 0 // D3
 #define ULTRATRIG 2 // D4
 #define MOTOR 5 // D1
@@ -100,21 +101,27 @@ private:
   void relayOff();
   void updateSensors();
   void updateState();
-  float avg(float *rgFloat, float newVal, uint8 index);
+  float avg(float *rgFloat, int length, float newVal, uint8 index);
+  int median(int* values, int length);
 
 
   // Variables
   Ticker *pTimer = new Ticker(Wrapper_To_Call_relayOff, 200, 1, MILLIS);
   Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateSensors, 60000 , 0, MILLIS);
-  Ticker *pTimer3 = new Ticker(Wrapper_To_Call_updateState, 1000 , 0, MILLIS);
+  Ticker *pTimer3 = new Ticker(Wrapper_To_Call_updateState, 200 , 0, MILLIS);
   Ultrasonic *pSonic = new Ultrasonic(ULTRATRIG, ULTRAECHO);
   DHT *pDht = new DHT(DHTPIN, DHTTYPE);
   event_t lastEvent = INIT;
   float temp;
   float humid;
-  float rgTemp[SMAX];
-  float rgHumid[SMAX];
-  int rgIndex = 0;
+
+  float rgTemp[TEMPELEMENTS];
+  float rgHumid[TEMPELEMENTS];
+  int lastTempIndex = 0;
+
+  int rgSonic[SONICELEMENTS];
+  int lastSonicIndex = 0;
+
   fptr call;
 
 };

@@ -10,7 +10,7 @@ extern "C" {
 
 }
 
-#define CODE_VERSION "V1.0.3"
+#define CODE_VERSION "V1.0.4"
 // FORWARD DECLARATIONS
 
 bool setup_wifi();
@@ -33,7 +33,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length);
 PubSubClient mqttClient(mqttServer, 1883, mqttCallback, espClient);
 
 long lastMqttReconnectAttempt = 0;
-
+int mqttReconnectCounter = 0;
 
 
 void setup() {
@@ -110,6 +110,8 @@ boolean mqttReconnect(){
       strcpy(str, "The Garage is (re)connected ");
       strcat(str, CODE_VERSION);
       mqttClient.publish("/home/garage/hello", str);
+      snprintf (str, 50, "%i", mqttReconnectCounter++);
+      mqttClient.publish("/home/garage/reconnect", str);
       mqttClient.subscribe("/home/garage/door/control");
       mqttClient.subscribe("/home/garage/status");
       mqttClient.subscribe("/home/garage/ECU/reboot");
@@ -156,7 +158,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void eventListener(){
   // Something wonderful has happened
   char eventStr[50];
-  mqttClient.publish("/home/garage/door/state", garage->getEvent(eventStr), true);
+  mqttClient.publish("/home/garage/door/event", garage->getEvent(eventStr), true);
 }
 
 void tack() {

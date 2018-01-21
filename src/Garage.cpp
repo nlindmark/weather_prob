@@ -111,21 +111,27 @@ void Garage::garageCntrl(bool up) {
 
 void Garage::updateSensors() {
   // Check temp and humidity
-  temp = avg(rgTemp, pDht->readTemperature(), rgIndex);
-  humid = avg(rgHumid, pDht->readHumidity(), rgIndex);
-  rgIndex = ++rgIndex%SMAX;
+  temp = avg(rgTemp, TEMPELEMENTS, pDht->readTemperature(), lastTempIndex);
+  humid = avg(rgHumid, TEMPELEMENTS, pDht->readHumidity(), lastTempIndex);
+  lastTempIndex = ++lastTempIndex%TEMPELEMENTS;
 }
 
 void Garage::updateState(){
 
-  uint32_t distance = pSonic->distanceRead();
   event_t event;
+  uint32_t distance = pSonic->distanceRead();
 
   // Sense checking
   if(distance < 0 || distance > 300) {
-    event = INIT;
+    return;
   }
-  else if(distance < 40){
+
+  // Pick out median distance
+  rgSonic[lastSonicIndex] = distance;
+  lastSonicIndex = ++lastSonicIndex%SONICELEMENTS;
+  distance = median(rgSonic, SONICELEMENTS);
+
+  if(distance < 40){
     event =  DOOR_OPEN;
   } else if(distance < 180){
     event = DOOR_CLOSED_CAR_IN;
@@ -139,7 +145,7 @@ void Garage::updateState(){
   }
 }
 
-float Garage::avg(float *rgFloat, float newVal, uint8 index) {
+float Garage::avg(float *rgFloat, int length,  float newVal, uint8 index) {
 
   float avg = 0.0f;
 
@@ -147,11 +153,30 @@ float Garage::avg(float *rgFloat, float newVal, uint8 index) {
     rgFloat[index] = newVal;
   }
 
-  for(int i = 0; i < SMAX; i++) {
+  for(int i = 0; i < length; i++) {
     avg += rgFloat[i];
   }
 
-  avg /= SMAX;
+  avg /= length;
 
   return avg;
+}
+
+
+
+
+int compare (const void * a, const void * b)
+{
+  return ( *(int*)a - *(int*)b );
+}
+
+int Garage::median(int* values, int length)
+{
+  int n;
+  qsort (values, length, sizeof(int), compare);
+  for (n=0; n<length; n++){
+    printf ("%d ",values[n]);
+  }
+
+  return values[length/2];
 }

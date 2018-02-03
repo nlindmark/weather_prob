@@ -12,12 +12,8 @@ Weather* Weather::getInstance() {
   {
     instance = new Weather();
     instance->pDht->begin();
-    instance->pTimer2->start();
+    instance->pTimer->start();
     instance->call = NULL;
-
-
-    // First inital read
-    instance->updateSensors();
 
   }
   return instance;
@@ -37,7 +33,7 @@ void Weather::Wrapper_To_Call_updateSensors() {
 
 
 void Weather::update() {
-  pTimer2->update();
+  pTimer->update();
 }
 
 char* Weather::getTemp(char* t) {
@@ -57,7 +53,8 @@ char* Weather::getEvent(char* e) {
 }
 
 // PRIVATE
-Weather::Weather() {}
+Weather::Weather() {
+}
 
 
 
@@ -66,6 +63,9 @@ void Weather::updateSensors() {
   temp = avg(rgTemp, TEMPELEMENTS, pDht->readTemperature(), lastTempIndex);
   humid = avg(rgHumid, TEMPELEMENTS, pDht->readHumidity(), lastTempIndex);
   lastTempIndex = ++lastTempIndex%TEMPELEMENTS;
+
+  if(call != NULL) call();
+
 }
 
 
@@ -84,21 +84,4 @@ float Weather::avg(float *rgFloat, int length,  float newVal, uint8 index) {
   avg /= length;
 
   return avg;
-}
-
-
-int compare (const void * a, const void * b)
-{
-  return ( *(int*)a - *(int*)b );
-}
-
-int Weather::median(int* values, int length)
-{
-  int n;
-  qsort (values, length, sizeof(int), compare);
-  for (n=0; n<length; n++){
-    printf ("%d ",values[n]);
-  }
-
-  return values[length/2];
 }

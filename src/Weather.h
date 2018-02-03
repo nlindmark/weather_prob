@@ -6,11 +6,10 @@
 
 #define DHTTYPE           DHT22     // DHT 22 (AM2302)
 #define TEMPELEMENTS              1
-#define DHTPIN 4 // D2
+#define DHTPIN D4
 
 typedef void (*fptr)();
 
-enum event_t {INIT, DOOR_OPEN, DOOR_CLOSED_CAR_IN, DOOR_CLOSED_CAR_OUT};
 
 class Weather
 {
@@ -78,9 +77,8 @@ private:
 
 
   // Variables
-  Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateSensors, 60000 , 0, MILLIS);
+  Ticker *pTimer = new Ticker(Wrapper_To_Call_updateSensors, 3000 , 0, MILLIS);
   DHT *pDht = new DHT(DHTPIN, DHTTYPE);
-  event_t lastEvent = INIT;
   float temp;
   float humid;
 

@@ -42,8 +42,6 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // Turn LED off
 
   setup_wifi();
 
@@ -131,9 +129,9 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   // Internally, the mqtt client uses the same buffer for both inbound and outbound
   // messages. The application should create its own copy of the values if they
   // are required beyond this.
-  char t[50], p[50], buffer[50];
+  char t[50], p[length+1], buffer[50];
   snprintf (t, 50, "%s", topic);
-  snprintf (p, 50, "%s",payload);
+  snprintf (p, length, "%s",payload);
   Serial.println(t);
 
 if(strcmp(t, "/home/weather/status") == 0){

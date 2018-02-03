@@ -66,6 +66,8 @@ void Weather::updateSensors() {
 
   if(call != NULL) call();
 
+  delay(1000);
+  ESP.deepSleep(60*1000000, WAKE_RF_DEFAULT);
 }
 
 

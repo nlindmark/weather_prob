@@ -135,8 +135,8 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.println(t);
 
 if(strcmp(t, "/home/weather/status") == 0){
-    mqttClient.publish("/home/weather/temp",  weather->getTemp(buffer), true);
-    mqttClient.publish("/home/weather/humid", weather->getHumid(buffer), true);
+    mqttClient.publish("/home/weather/outside/temp",  weather->getTemp(buffer), true);
+    mqttClient.publish("/home/weather/outside/humid", weather->getHumid(buffer), true);
 }  else if (strcmp(t, "/home/weather/reprogram") == 0) {
     iotUpdater(true);
     Serial.println("Received a reprogram command");
@@ -147,8 +147,8 @@ if(strcmp(t, "/home/weather/status") == 0){
 void eventListener(){
   // Something wonderful has happened
   char eventStr[50];
-  mqttClient.publish("/home/weather/temp",  weather->getTemp(eventStr), true);
-  mqttClient.publish("/home/weather/humid", weather->getHumid(eventStr), true);
+  mqttClient.publish("/home/weather/outside/temp",  weather->getTemp(eventStr), true);
+  mqttClient.publish("/home/weather/outside/humid", weather->getHumid(eventStr), true);
 }
 
 void tack() {

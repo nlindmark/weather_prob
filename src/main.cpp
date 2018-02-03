@@ -3,14 +3,14 @@
 #include "credentials.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include "Garage.h"
+#include "Weather.h"
 #include <Ticker.h>
 extern "C" {
   #include "user_interface.h"
 
 }
 
-#define CODE_VERSION "V1.0.4"
+#define CODE_VERSION "V1.0.0"
 // FORWARD DECLARATIONS
 
 bool setup_wifi();
@@ -19,7 +19,7 @@ void eventListener();
 boolean mqttReconnect();
 
 // VARIABLES
-Garage* garage = Garage::getInstance();
+Weather* weather = Weather::getInstance();
 
 Ticker timer1(tack, 1000,0, MILLIS);
 
@@ -47,13 +47,13 @@ void setup() {
 
   setup_wifi();
 
-  garage->setCallback(eventListener);
+  weather->setCallback(eventListener);
 
   timer1.start();
 
   mqttReconnect();
 
-  iotUpdater(true);
+
 }
 
 void loop() {
@@ -67,7 +67,7 @@ void loop() {
   }
 
   timer1.update();
-  garage->update();
+  weather->update();
 }
 
 
@@ -106,15 +106,14 @@ boolean mqttReconnect(){
 
     snprintf (clientName, 50, "%ld", system_get_chip_id());
     if (mqttClient.connect(clientName, MQTTUSER, MQTTPASSWORD)) {
-      char str[30];
-      strcpy(str, "The Garage is (re)connected ");
+      char str[50];
+      strcpy(str, "The Weather station is (re)connected ");
       strcat(str, CODE_VERSION);
-      mqttClient.publish("/home/garage/hello", str);
+      mqttClient.publish("/home/weather/hello", str);
       snprintf (str, 50, "%i", mqttReconnectCounter++);
-      mqttClient.publish("/home/garage/reconnect", str);
-      mqttClient.subscribe("/home/garage/door/control");
-      mqttClient.subscribe("/home/garage/status");
-      mqttClient.subscribe("/home/garage/ECU/reboot");
+      mqttClient.publish("/home/weather/reconnect", str);
+      mqttClient.subscribe("/home/weather/status");
+      mqttClient.subscribe("/home/weather/reprogram");
 
     }
   }
@@ -137,20 +136,12 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   snprintf (p, 50, "%s",payload);
   Serial.println(t);
 
-  if(strcmp(t, "/home/garage/door/control") == 0){
-    if(strcmp(p, "Open") == 0){
-      garage->open();
-    } else {
-      garage->close();
-    }
-
-  } else   if(strcmp(t, "/home/garage/status") == 0){
-    mqttClient.publish("/home/garage/temp",  garage->getTemp(buffer), true);
-    mqttClient.publish("/home/garage/humid", garage->getHumid(buffer), true);
-    mqttClient.publish("/home/garage/door/state", garage->getEvent(buffer), true);
-
-  } else if (strcmp(t, "/home/garage/ECU/reboot") == 0) {
-    ESP.reset();
+if(strcmp(t, "/home/weather/status") == 0){
+    mqttClient.publish("/home/weather/temp",  weather->getTemp(buffer), true);
+    mqttClient.publish("/home/weather/humid", weather->getHumid(buffer), true);
+}  else if (strcmp(t, "/home/weather/reprogram") == 0) {
+    iotUpdater(true);
+    Serial.println("Received a reprogram command");
   }
 }
 
@@ -158,13 +149,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 void eventListener(){
   // Something wonderful has happened
   char eventStr[50];
-  mqttClient.publish("/home/garage/door/event", garage->getEvent(eventStr), true);
+  mqttClient.publish("/home/weather/temp",  weather->getTemp(eventStr), true);
+  mqttClient.publish("/home/weather/humid", weather->getHumid(eventStr), true);
 }
 
 void tack() {
   char buffer[50];
   Serial.print("Temp: ");
-  Serial.println(garage->getTemp(buffer));
+  Serial.println(weather->getTemp(buffer));
   Serial.print("Humid: ");
-  Serial.println(garage->getHumid(buffer));
+  Serial.println(weather->getHumid(buffer));
 }

@@ -1,60 +1,35 @@
-#ifndef GARAGE_H
-#define GARAGE_H
+#ifndef WEATHER_H
+#define WEATHER_H
 
 #include <Ticker.h>
-#include <Ultrasonic.h>
 #include <DHT.h>
 
 #define DHTTYPE           DHT22     // DHT 22 (AM2302)
 #define TEMPELEMENTS              1
-#define SONICELEMENTS             5
-#define ULTRAECHO 0 // D3
-#define ULTRATRIG 2 // D4
-#define MOTOR 5 // D1
 #define DHTPIN 4 // D2
 
 typedef void (*fptr)();
 
 enum event_t {INIT, DOOR_OPEN, DOOR_CLOSED_CAR_IN, DOOR_CLOSED_CAR_OUT};
 
-class Garage
+class Weather
 {
 
 public:
   /**
-   * Get the Garage instance
-   * @return Pointer to Garage instance
+   * Get the Weather instance
+   * @return Pointer to Weather instance
    */
-  static Garage* getInstance();
+  static Weather* getInstance();
 
 
-  /**
-   * Opens the Garage
-   */
-  void open();
 
-  /**
-   * Closes the Garage
-   */
-  void close();
-
-  /**
-   * Static wrapper function used in Ticker callback
-   * http://www.newty.de/fpt/callback.html#static
-   */
-  static void Wrapper_To_Call_relayOff();
 
   /**
    * Static wrapper function used in Ticker callback
    * http://www.newty.de/fpt/callback.html#static
    */
   static void Wrapper_To_Call_updateSensors();
-
-  /**
-   * Static wrapper function used in Ticker callback
-   * http://www.newty.de/fpt/callback.html#static
-   */
-  static void Wrapper_To_Call_updateState();
 
 
   /**
@@ -77,9 +52,9 @@ public:
   char* getHumid(char*);
 
   /**
-   * Get last door event
-   * @param  e Char array where event is stored
-   * @return Pointer to event array
+  * Get current event
+  * @param  char array where the event is stored
+  * @return Pointer to event string
    */
   char* getEvent(char*);
 
@@ -93,23 +68,17 @@ public:
 
 private:
   /* Private constructor to prevent instancing. */
-  Garage();
+  Weather();
   /* Here will be the instance stored. */
-  static Garage* instance;
-  void garageCntrl(bool up);
-  void relayOn();
-  void relayOff();
+  static Weather* instance;
+  void weatherProb(bool up);
   void updateSensors();
-  void updateState();
   float avg(float *rgFloat, int length, float newVal, uint8 index);
   int median(int* values, int length);
 
 
   // Variables
-  Ticker *pTimer = new Ticker(Wrapper_To_Call_relayOff, 200, 1, MILLIS);
   Ticker *pTimer2 = new Ticker(Wrapper_To_Call_updateSensors, 60000 , 0, MILLIS);
-  Ticker *pTimer3 = new Ticker(Wrapper_To_Call_updateState, 200 , 0, MILLIS);
-  Ultrasonic *pSonic = new Ultrasonic(ULTRATRIG, ULTRAECHO);
   DHT *pDht = new DHT(DHTPIN, DHTTYPE);
   event_t lastEvent = INIT;
   float temp;
@@ -119,8 +88,6 @@ private:
   float rgHumid[TEMPELEMENTS];
   int lastTempIndex = 0;
 
-  int rgSonic[SONICELEMENTS];
-  int lastSonicIndex = 0;
 
   fptr call;
 
